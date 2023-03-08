@@ -21,7 +21,7 @@ async def echo(message: types.Message):
 
 async def start(message: types.Message):
     """ Выполняется при старте """
-    await message.answer("<b>Бот для общения с ChatGPT.</b>\n Введите следующим сообщением вопрос к ChatGPT.")
+    await message.answer("<b>Бот для общения с ChatGPT.</b>\nВведите следующим сообщением вопрос к ChatGPT.")
 
 
 def register_user(dp: Dispatcher):
