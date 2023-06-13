@@ -23,7 +23,7 @@ class TgBot:
 
 @dataclass
 class Miscellaneous:
-    other_params: str = None
+    other_params: str = ""
 
 
 @dataclass
@@ -38,7 +38,7 @@ class Config:
     gpt: GPTBot
 
 
-def load_config(path: str = None):
+def load_config(path: str = ""):
     env = Env()
     env.read_env(path)
 
