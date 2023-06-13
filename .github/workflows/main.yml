@@ -13,6 +13,7 @@ env:
   REGISTRY: "rewale"
   IMAGE_NAME: "chatbotgpt"
   CONTAINER_NAME: "chatbotgpt"
+  LOGS_PATH: "/usr/logs"
 
 jobs:
   lint_and_test:
