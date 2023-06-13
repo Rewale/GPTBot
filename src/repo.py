@@ -18,7 +18,6 @@ class GPTRepo(IGPTRepo):
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                # {"role": "system", "content": "You are a chatbot"},
                 {"role": "user", "content": question},
             ]
         )
