@@ -21,6 +21,7 @@ async def main():
     bot['repo_gpt'] = GPTRepo(config.gpt.token)
 
     register_user(dp)
+    bot_logger.info("Bot started")
 
     try:
         await dp.start_polling()

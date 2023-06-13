@@ -1,11 +1,6 @@
-import os
 from dataclasses import dataclass
-from typing import List
 
 from environs import Env
-
-__abs_path_dir = os.path.dirname(os.path.abspath(__file__))
-schedule_xlsx_dir_path = os.path.join(__abs_path_dir, "schedules_xlsx")
 
 
 @dataclass
