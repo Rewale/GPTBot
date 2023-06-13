@@ -1,0 +1,76 @@
+name: main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  REGISTRY: "rewale"
+  IMAGE_NAME: "chatbotgpt"
+  CONTAINER_NAME: "chatbotgpt"
+
+jobs:
+  lint_and_test:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install req
+        run: |
+          pip install mypy
+          pip install pytest
+          pip install -r req.txt
+      - name: Lint mypy
+        run: mypy . --ignore-missing-imports
+      - name: Testing
+        run: pytest .
+  build_and_push:
+    if: github.event_name == 'push'
+    needs: lint_and_test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build container image
+        run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
+      - name: Login to Docker Hub
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }} $(echo $REGISTRY)
+      - name: Push image to DockerHub
+        run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
+  deploy:
+    if: github.event_name == 'push'
+    needs: build_and_push
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Deploy to Digital Ocean droplet via SSH action
+        uses: appleboy/ssh-action@v0.1.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.PORT }}
+          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,LOGS_PATH,ENV_FILE_PATH,CONTAINER_NAME
+          script: |
+            # Login into Docker hub
+            docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }} $(echo $REGISTRY)
+
+            # Stop running container
+            docker stop $(echo $CONTAINER_NAME)
+
+            # Remove old container
+            docker rm $(echo $CONTAINER_NAME)
+
+            # Run a new container from a new image
+            docker run -e BOT_TOKEN='{{ secrets.TELEGRAM_TOKEN }}' -e GPT_TOKEN='{{ secrets.CHAT_GPT_TOKEN }}' \
+            -e USE_REDIS='False' \
+            -v $(echo $LOGS_PATH):/logs -d \
+            --restart always \
+            --name $(echo $CONTAINER_NAME) \
+            $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
