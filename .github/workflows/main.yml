@@ -45,6 +45,8 @@ jobs:
       - name: Push image to DockerHub
         run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
   deploy:
+    if: github.event_name == 'push'
+    needs: build_and_push
     runs-on: ubuntu-22.04
     steps:
       - name: Deploy to Digital Ocean droplet via SSH action
