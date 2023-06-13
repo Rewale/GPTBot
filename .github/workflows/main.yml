@@ -42,7 +42,7 @@ jobs:
       - name: Build container image
         run: docker build -t $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7) .
       - name: Login to Docker Hub
-        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }} $(echo $REGISTRY)
+        run: docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }}
       - name: Push image to DockerHub
         run: docker push $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
   deploy:
@@ -60,7 +60,7 @@ jobs:
           envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,LOGS_PATH,ENV_FILE_PATH,CONTAINER_NAME
           script: |
             # Login into Docker hub
-            docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }} $(echo $REGISTRY)
+            docker login -u ${{ secrets.DOCKER_USER }} -p ${{ secrets.DOCKER_TOKEN }} 
 
             # Stop running container
             docker stop $(echo $CONTAINER_NAME)
